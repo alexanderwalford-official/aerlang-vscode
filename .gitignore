@@ -1,0 +1,4 @@
+# packages built by tools/package.py
+*.vsix
+node_modules/
+__pycache__/

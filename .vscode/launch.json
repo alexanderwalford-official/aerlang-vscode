@@ -1,0 +1,15 @@
+{
+    // F5 opens a second VS Code window with this extension loaded, showing the demo program
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run the extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "${workspaceFolder}/examples"
+            ]
+        }
+    ]
+}

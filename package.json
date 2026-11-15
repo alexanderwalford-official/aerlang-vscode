@@ -1,0 +1,57 @@
+{
+    "name": "aerlang",
+    "displayName": "AerLang",
+    "description": "Colours, suggestions, argument help and hover for AerLang, the programming language built into AerOS (.aer files)",
+    "version": "0.2.0",
+    "publisher": "aeros",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alexanderwalford-official/aerlang-vscode.git"
+    },
+    "homepage": "https://github.com/alexanderwalford-official/aerlang-vscode#readme",
+    "bugs": {
+        "url": "https://github.com/alexanderwalford-official/aerlang-vscode/issues"
+    },
+    "keywords": [
+        "aerlang",
+        "aeros",
+        "renlang",
+        "aer",
+        "syntax highlighting"
+    ],
+    "engines": {
+        "vscode": "^1.75.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Snippets"
+    ],
+    "main": "./extension.js",
+    "activationEvents": [
+        "onLanguage:aerlang"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "aerlang",
+                "aliases": [
+                    "AerLang",
+                    "aerlang"
+                ],
+                "extensions": [
+                    ".aer",
+                    ".ren"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "aerlang",
+                "scopeName": "source.aerlang",
+                "path": "./syntaxes/aerlang.tmLanguage.json"
+            }
+        ]
+    }
+}

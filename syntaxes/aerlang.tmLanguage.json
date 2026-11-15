@@ -1,0 +1,198 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "AerLang",
+    "scopeName": "source.aerlang",
+    "comment": "The keywords match the table in src/lang/aer_lexer.c of AerOS (github.com/alexanderwalford-official/aerOS), the built-ins the BUILTIN() list in src/lang/aer_builtins.c and the constants aer_define_constants() in the same file. Add new ones here too.",
+    "patterns": [
+        { "include": "#comment" },
+        { "include": "#string" },
+        { "include": "#function-declaration" },
+        { "include": "#variable-declaration" },
+        { "include": "#number" },
+        { "include": "#keyword" },
+        { "include": "#constant" },
+        { "include": "#builtin-function" },
+        { "include": "#function-call" },
+        { "include": "#operator" },
+        { "include": "#punctuation" }
+    ],
+    "repository": {
+        "comment": {
+            "match": "(#).*$",
+            "name": "comment.line.number-sign.aerlang",
+            "captures": {
+                "1": { "name": "punctuation.definition.comment.aerlang" }
+            }
+        },
+        "string": {
+            "comment": "A string can't span lines: one with no closing quote ends at the end of the line",
+            "name": "string.quoted.double.aerlang",
+            "begin": "\"",
+            "beginCaptures": {
+                "0": { "name": "punctuation.definition.string.begin.aerlang" }
+            },
+            "end": "(\")|$",
+            "endCaptures": {
+                "1": { "name": "punctuation.definition.string.end.aerlang" }
+            },
+            "patterns": [
+                {
+                    "match": "\\\\[nt0\\\\\"]",
+                    "name": "constant.character.escape.aerlang"
+                },
+                {
+                    "match": "\\\\.",
+                    "name": "invalid.illegal.unknown-escape.aerlang"
+                }
+            ]
+        },
+        "function-declaration": {
+            "begin": "\\b(func)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(\\()",
+            "beginCaptures": {
+                "1": { "name": "storage.type.function.aerlang" },
+                "2": { "name": "entity.name.function.aerlang" },
+                "3": { "name": "punctuation.definition.parameters.begin.aerlang" }
+            },
+            "end": "\\)",
+            "endCaptures": {
+                "0": { "name": "punctuation.definition.parameters.end.aerlang" }
+            },
+            "patterns": [
+                { "include": "#comment" },
+                {
+                    "match": "[A-Za-z_][A-Za-z0-9_]*",
+                    "name": "variable.parameter.aerlang"
+                },
+                {
+                    "match": ",",
+                    "name": "punctuation.separator.parameters.aerlang"
+                }
+            ]
+        },
+        "variable-declaration": {
+            "match": "\\b(let)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+            "captures": {
+                "1": { "name": "storage.type.aerlang" },
+                "2": { "name": "variable.other.declaration.aerlang" }
+            }
+        },
+        "number": {
+            "patterns": [
+                {
+                    "match": "\\b0[xX][0-9A-Fa-f]+\\b",
+                    "name": "constant.numeric.hex.aerlang"
+                },
+                {
+                    "comment": "A decimal has a point with digits after it, an exponent, or both: 3.14, 1e6, 2.5e-3",
+                    "match": "\\b[0-9]+(?:\\.[0-9]+(?:[eE][+-]?[0-9]+)?|[eE][+-]?[0-9]+)\\b",
+                    "name": "constant.numeric.float.aerlang"
+                },
+                {
+                    "match": "\\b[0-9]+\\b",
+                    "name": "constant.numeric.integer.aerlang"
+                }
+            ]
+        },
+        "keyword": {
+            "patterns": [
+                {
+                    "match": "\\b(if|then|elif|else)\\b",
+                    "name": "keyword.control.conditional.aerlang"
+                },
+                {
+                    "match": "\\b(while|do|for|to|step|in|break|continue)\\b",
+                    "name": "keyword.control.loop.aerlang"
+                },
+                {
+                    "match": "\\b(return)\\b",
+                    "name": "keyword.control.flow.aerlang"
+                },
+                {
+                    "match": "\\b(end)\\b",
+                    "name": "keyword.control.end.aerlang"
+                },
+                {
+                    "match": "\\b(func)\\b",
+                    "name": "storage.type.function.aerlang"
+                },
+                {
+                    "match": "\\b(let)\\b",
+                    "name": "storage.type.aerlang"
+                },
+                {
+                    "match": "\\b(and|or|not)\\b",
+                    "name": "keyword.operator.logical.aerlang"
+                },
+                {
+                    "match": "\\b(true|false)\\b",
+                    "name": "constant.language.boolean.aerlang"
+                },
+                {
+                    "match": "\\b(nil)\\b",
+                    "name": "constant.language.nil.aerlang"
+                }
+            ]
+        },
+        "constant": {
+            "patterns": [
+                {
+                    "match": "\\b(KEY_(?:UP|DOWN|LEFT|RIGHT|HOME|END|DELETE|ESCAPE|ENTER|BACKSPACE|TAB|PGUP|PGDN|SHIFT|CTRL|ALT|SPACE)|MOUSE_(?:LEFT|RIGHT|MIDDLE))\\b",
+                    "name": "support.constant.key.aerlang"
+                },
+                {
+                    "match": "\\b(BLACK|DARK_BLUE|GREEN|CYAN|RED|PURPLE|ORANGE|BROWN|BRIGHT|DARK_GRAY|LIGHT_BLUE|LIGHT_GREEN|LIGHT_CYAN|LIGHT_RED|LIGHT_PURPLE|YELLOW|WHITE)\\b",
+                    "name": "support.constant.colour.aerlang"
+                },
+                {
+                    "match": "\\b(PI)\\b",
+                    "name": "support.constant.math.aerlang"
+                },
+                {
+                    "match": "\\b(args)\\b",
+                    "name": "variable.language.args.aerlang"
+                }
+            ]
+        },
+        "builtin-function": {
+            "comment": "Only when called, so a variable named like a built-in (line, text, key) stays a plain name",
+            "match": "\\b(print|write|input|inpw|cls|color|at|key|haskey|len|str|int|float|sqrt|sin|cos|atan2|floor|round|abs|chr|ord|sub|find|upper|lower|split|join|list|push|pop|insert|remove|bytes|rdf|rdb|wrf|apf|rdat|wrat|trunc|isf|delf|enc|dec|isenc|rdenc|la|cwd|sleep|time|sysinfo|big|progress|spinner|frame|queue|cmd|logadd|nsend|nrecv|dbopen|dbrun|dbquery|dbclose|appmode|random|beep|play|exit|gopen|gclose|gw|gh|gclear|rgb|pixel|rect|line|text|image|imgsz|gbuf|gshow|keydown|mouse|mousemove|mousedown|sload|splay|sstop|isply|video)\\b(?=\\s*\\()",
+            "name": "support.function.builtin.aerlang"
+        },
+        "function-call": {
+            "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\b(?=\\s*\\()",
+            "name": "entity.name.function.call.aerlang"
+        },
+        "operator": {
+            "patterns": [
+                {
+                    "match": "==|!=|<=|>=|<|>",
+                    "name": "keyword.operator.comparison.aerlang"
+                },
+                {
+                    "match": "=",
+                    "name": "keyword.operator.assignment.aerlang"
+                },
+                {
+                    "match": "[-+*/%]",
+                    "name": "keyword.operator.arithmetic.aerlang"
+                }
+            ]
+        },
+        "punctuation": {
+            "patterns": [
+                {
+                    "match": ",",
+                    "name": "punctuation.separator.comma.aerlang"
+                },
+                {
+                    "match": "[\\[\\]]",
+                    "name": "punctuation.section.brackets.aerlang"
+                },
+                {
+                    "match": "[()]",
+                    "name": "punctuation.section.parens.aerlang"
+                }
+            ]
+        }
+    }
+}

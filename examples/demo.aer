@@ -1,0 +1,41 @@
+# demo.aer: a small AerLang program to try the extension on.
+# Hover over a name, type inside a call, or start a new line and type "l" or "rec".
+
+let name = input("Your name? ") or "friend"
+print("Hello", name + "!")
+
+# how many points a word is worth: its length, doubled for long words
+func points(word)
+    if len(word) > 6 then
+        return len(word) * 2
+    elif len(word) == 0 then
+        return 0
+    end
+    return len(word)
+end
+
+let total = 0
+for word in split("the quick brown fox jumps over the lazy dog") do
+    total = total + points(word)
+end
+print("Score: " + total)
+
+# a decimal, a hex colour and a string with escapes
+let ratio = total / 3.0
+let colour = 0xFF7F00
+write("ratio\t", ratio, "\n")
+
+# a few frames of graphics, until Esc
+if gopen() then
+    gbuf(true)
+    let x = 100.0
+    while not keydown(KEY_ESCAPE) do
+        if keydown(KEY_LEFT) then x = x - 4 end
+        if keydown(KEY_RIGHT) then x = x + 4 end
+        gclear(0)
+        rect(x, 200, 40, 40, colour)
+        text(10, 10, "Esc to stop", rgb(255, 255, 255), 2)
+        gshow()
+        frame(60)
+    end
+end
