@@ -155,7 +155,7 @@
         },
         "builtin-function": {
             "comment": "Only when called, so a variable named like a built-in (line, text, key) stays a plain name",
-            "match": "\\b(print|write|input|inpw|cls|color|at|key|haskey|len|str|int|float|sqrt|sin|cos|atan2|floor|round|abs|chr|ord|sub|find|upper|lower|split|join|list|push|pop|insert|remove|bytes|rdf|rdb|wrf|apf|rdat|wrat|trunc|isf|delf|enc|dec|isenc|rdenc|la|cwd|sleep|time|sysinfo|big|progress|spinner|frame|queue|cmd|logadd|nsend|nrecv|dbopen|dbrun|dbquery|dbclose|appmode|random|beep|play|exit|gopen|gclose|gw|gh|gclear|rgb|pixel|rect|line|text|image|imgsz|gbuf|gshow|keydown|mouse|mousemove|mousedown|sload|splay|sstop|isply|video)\\b(?=\\s*\\()",
+            "match": "\\b(print|write|input|inpw|cls|color|at|key|haskey|clip|setclip|sqrt|sin|cos|atan2|floor|round|abs|float|int|len|str|chr|ord|sub|find|upper|lower|split|join|list|push|pop|insert|remove|bytes|rdf|rdb|wrf|apf|isf|delf|la|cwd|mkd|deld|sync|rdat|wrat|trunc|enc|dec|isenc|rdenc|dbopen|dbrun|dbquery|dbclose|nsend|nrecv|httpget|tcplisten|tcpaccept|tcpconnect|tcprecv|tcpsend|tcpclose|tcpunlisten|verify|packagekey|scan|sleep|time|random|beep|play|video|exit|queue|sysinfo|appmode|disks|install|osbuild|osversion|osupdatable|osupdate|logadd|logclear|setlogging|islogging|cmd|progress|spinner|frame|big|gopen|gclose|gw|gh|gclear|rgb|pixel|rect|line|text|image|imgsz|gbuf|gshow|keydown|sload|splay|sstop|isply|mouse|mousemove|mousedown)\\b(?=\\s*\\()",
             "name": "support.function.builtin.aerlang"
         },
         "function-call": {

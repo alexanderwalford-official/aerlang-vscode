@@ -38,7 +38,7 @@ print("Score: " + total)
 - whole, decimal and hex numbers: `42`, `3.14`, `2.5e3`, `0xFF`
 - all 22 keywords, coloured by kind: `if then elif else end`, `while do for to step in break continue`,
   `func return let`, `and or not`, `true false nil`
-- the 93 built-in functions (`print`, `rdf`, `gopen`...), but only when they are called. A
+- the 118 built-in functions (`print`, `rdf`, `gopen`...), but only when they are called. A
   variable called `line` or `text` stays a plain name, while `line(0, 0, 9, 9, c)` is a built-in
 - the constants (`KEY_UP`, `MOUSE_LEFT`, `ORANGE`, `PI`) and `args`
 - the name and parameters of a `func`, the name a `let` makes, and calls to your own functions
@@ -114,7 +114,7 @@ you build from this repository with Python (3.6 or newer). Node and npm aren't n
 git clone https://github.com/alexanderwalford-official/aerlang-vscode.git
 cd aerlang-vscode
 python tools/package.py
-code --install-extension aerlang-0.2.0.vsix
+code --install-extension aerlang-0.3.0.vsix
 ```
 
 Then open any `.aer` file. If VS Code was already open, run **Developer: Reload Window** from the
@@ -125,7 +125,7 @@ To update, pull the new version and run the same commands again. To remove it, u
 **AerLang** in the Extensions view, or run `code --uninstall-extension aeros.aerlang`.
 
 **Without packaging:** copy the repository folder into VS Code's extensions folder under the
-name `aeros.aerlang-0.2.0`, then restart VS Code. The folder is
+name `aeros.aerlang-0.3.0`, then restart VS Code. The folder is
 `%USERPROFILE%\.vscode\extensions` on Windows and `~/.vscode/extensions` on macOS and Linux.
 
 **To try it without installing:** open this folder in VS Code and press **F5**. A second VS Code
@@ -135,11 +135,12 @@ window opens with the extension loaded. Open `examples/demo.aer` there.
 
 | Extension | VS Code | AerLang (AerOS) | What it does |
 | --- | --- | --- | --- |
-| **0.2.0** | 1.75 or newer | AerOS 0.01 ALPHA, as of aerOS commit [`70b4c3f`](https://github.com/alexanderwalford-official/aerOS/commit/70b4c3f), plus `logadd` | colours, suggestions, argument help, hover, blocks |
+| **0.3.0** | 1.75 or newer | AerOS 0.01 ALPHA, as of aerOS commit [`4b9acdf`](https://github.com/alexanderwalford-official/aerOS/commit/4b9acdf) (118 built-ins) | as 0.2.0, plus files, TCP, trust, updates and logs built-ins, and which built-ins a background program can't use |
+| 0.2.0 | 1.75 or newer | AerOS 0.01 ALPHA, as of aerOS commit [`70b4c3f`](https://github.com/alexanderwalford-official/aerOS/commit/70b4c3f), plus `logadd` (93 built-ins) | colours, suggestions, argument help, hover, blocks |
 | 0.1.0 | 1.60 or newer | AerOS 0.01 ALPHA, as of aerOS commit `70b4c3f` | colours only (never published on its own) |
 
 **VS Code.** The minimum version is the `engines.vscode` field of `package.json`. VS Code
-refuses to install the extension on an older version. 0.2.0 was tested with VS Code 1.146.0 on
+refuses to install the extension on an older version. 0.3.0 was tested with VS Code 1.146.0 on
 Windows 11. It is plain JavaScript with no native code and no dependencies, so it should work
 the same on Windows, macOS and Linux. (VS Code for the Web gets the colours but not the
 suggestions, which run as a desktop extension.) Editors built on VS Code, such
@@ -152,8 +153,9 @@ its lists of keywords, built-ins and constants were copied from. With a differen
 
 - **newer:** everything here still works. Built-ins added since aren't coloured or suggested,
   but your programs can use them as usual
-- **older:** a built-in AerOS doesn't have yet may still be suggested (in 0.2.0, `logadd` was
-  added to AerOS just after `70b4c3f`). AerOS will say `unknown name` when the program runs
+- **older:** a built-in AerOS doesn't have yet may still be suggested (0.3.0 has 25 built-ins
+  that came after `70b4c3f`, such as `httpget` and the `tcp...` ones). AerOS will say
+  `unknown name` when the program runs
 
 `node test/run.js <path to aerOS>` compares the lists with an AerOS checkout and names anything
 that's different (see [Developing](#developing)).

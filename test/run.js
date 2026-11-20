@@ -213,6 +213,21 @@ if (AEROS) {
     check(`keywords match the lexer (${words.length})`, words.length === Object.keys(KEYWORDS).length && words.every((k) => KEYWORDS[k]), words);
     const constants = [...c.matchAll(/\{ "([A-Z_]+)", [^}]+\}/g)].map((m) => m[1]).concat(['PI']);
     check(`constants match (${constants.length})`, constants.every((k) => CONSTANTS[k]), constants.filter((k) => !CONSTANTS[k]));
+
+    // the built-ins a background program can't use: aer_front_only()'s list, and the graphics,
+    // sound and video parts (older AerOS without background programs has neither)
+    const frontList = /front_only\[\] = \{([^}]*)\}/.exec(c);
+    if (frontList) {
+        const front = new Set([...frontList[1].matchAll(/"(\w+)"/g)].map((m) => m[1]));
+        for (const part of ['APP_GRAPHICS', 'APP_SOUND', 'APP_VIDEO']) {
+            const names = new RegExp('\\{ ' + part + ',\\s*\\{([^}]*)\\}').exec(c);
+            if (names) [...names[1].matchAll(/"(\w+)"/g)].forEach((m) => front.add(m[1]));
+        }
+        const here = Object.values(BUILTINS).filter((b) => b.frontOnly).map((b) => b.name);
+        check(`the same built-ins are only for the program in front (${front.size})`,
+              here.length === front.size && here.every((n) => front.has(n)),
+              { missing: [...front].filter((n) => !here.includes(n)), extra: here.filter((n) => !front.has(n)) });
+    }
 }
 
 // ---- suggestions, argument help, hover --------------------------------------------------------
@@ -291,6 +306,9 @@ function hover (text) {
 }
 let h = hover('gop|en()');
 check('a built-in', h && h.includes('gopen()') && h.includes('Take over the screen'), h);
+check('says when a background program can\'t use it', h && h.includes('background'), h);
+h = hover('tcpre|cv(c, 100)');
+check('a TCP built-in', h && h.includes('tcprecv(c, ms)') && !h.includes('background'), h);
 check('not a built-in when it is a variable', hover('let li|ne = 3') === undefined);
 check('a keyword', (hover('wh|ile x do') || '').includes('Repeat'));
 check('a constant', (hover('KEY_U|P') || '').includes('key code'));
@@ -310,7 +328,7 @@ const files = [];
     }
 })(path.join(EXT, 'examples'));
 if (AEROS) {
-    for (const dir of ['src/disk', 'tools/test/files']) {
+    for (const dir of ['src/disk', 'packages', 'tools/test/files']) {
         if (fs.existsSync(path.join(AEROS, dir))) {
             (function walk (d) {
                 for (const entry of fs.readdirSync(d, { withFileTypes: true })) {

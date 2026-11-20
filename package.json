@@ -2,7 +2,7 @@
     "name": "aerlang",
     "displayName": "AerLang",
     "description": "Colours, suggestions, argument help and hover for AerLang, the programming language built into AerOS (.aer files)",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "publisher": "aeros",
     "license": "Apache-2.0",
     "repository": {

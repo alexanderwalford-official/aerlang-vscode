@@ -55,6 +55,8 @@ const BUILTIN_LIST = [
     ['Screen and keyboard', 'at', [p('x'), p('y')], 'Move the cursor to column x, row y.'],
     ['Screen and keyboard', 'key', [], 'Wait for a key and give back its code: a character code, or `KEY_UP`, `KEY_ENTER`, `KEY_ESCAPE`...'],
     ['Screen and keyboard', 'haskey', [], 'true if a key is waiting to be read with `key()`.'],
+    ['Screen and keyboard', 'clip', [], 'The text on the clipboard (the one the mouse copies to at the prompt), `""` if none.'],
+    ['Screen and keyboard', 'setclip', [p('text')], 'Put text on the clipboard.'],
 
     // maths
     ['Maths', 'sqrt', [p('x')], 'The square root of x, as a decimal.'],
@@ -65,7 +67,7 @@ const BUILTIN_LIST = [
     ['Maths', 'round', [p('x')], 'Round to the nearest whole number.'],
     ['Maths', 'abs', [p('x')], 'x without its minus sign.'],
     ['Maths', 'float', [p('x')], 'A number or text as a decimal: `float("2.5")` is `2.5`. nil if it isn\'t one.'],
-    ['Maths', 'int', [p('x')], 'A decimal with its decimals cut off (`int(-2.7)` is `-2`), or text as a whole number (`int("42")`, nil if it isn\'t one).'],
+    ['Maths', 'int', [p('x')], 'A decimal with its decimals cut off (`int(-2.7)` is `-2`), or text as a whole number (`int("42")`, nil if it isn\'t one), read the way a number in a program is: `"0x1F"` is hex and `"08"` is 8.'],
 
     // text
     ['Text', 'len', [p('x')], 'How long a string, list or bytes is.'],
@@ -90,12 +92,15 @@ const BUILTIN_LIST = [
     // files
     ['Files', 'rdf', [p('path')], 'Read a file as text (nil if it is missing). `rdf("notes.txt@2")` reads an old version.'],
     ['Files', 'rdb', [p('path')], 'Read a file as bytes, e.g. a picture for `image()`.'],
-    ['Files', 'wrf', [p('path'), p('text')], 'Write a file, replacing what was in it.'],
+    ['Files', 'wrf', [p('path'), p('text')], 'Write a file, replacing what was in it. text can be text or bytes (every byte of it, so a picture fetched with `httpget` can be saved).'],
     ['Files', 'apf', [p('path'), p('text')], 'Append text to the end of a file.'],
     ['Files', 'isf', [p('path')], 'Is there a file at path?'],
     ['Files', 'delf', [p('path')], 'Delete a file.'],
     ['Files', 'la', [o('dir')], 'List the names in a directory (directories end in `/`).'],
     ['Files', 'cwd', [], 'The current directory, e.g. `"/bin/"`.'],
+    ['Files', 'mkd', [p('path')], 'Make a folder: true if it was made, false if it is there already or can\'t be. Until the program ends, it may then change files in it without being asked.'],
+    ['Files', 'deld', [p('path')], 'Delete a folder and the files in it (not one with folders inside).'],
+    ['Files', 'sync', [], 'Put every change onto the disk now (AerOS does it within a second anyway): for a program that wants to be sure, like a game saving.'],
 
     // a piece of a file at a time
     ['Files', 'rdat', [p('path'), p('offset'), p('count')], 'count bytes from byte offset of a file, as bytes (fewer at the end).'],
@@ -117,6 +122,21 @@ const BUILTIN_LIST = [
     // network
     ['Network', 'nsend', [p('host'), p('port'), p('text')], 'Send a sealed message to a computer the firewall allows. true if it was sent.'],
     ['Network', 'nrecv', [p('port'), p('ms')], 'Wait up to ms milliseconds for a message on port: the message, or nil.'],
+    ['Network', 'httpget', [p('url')], 'Fetch a web page (http:// only) from a computer a web rule (`FW WEB`) allows: its text if the status was 2xx, or nil.'],
+
+    // TCP
+    ['TCP', 'tcplisten', [p('port')], 'Let other computers connect to this port (`FW SERVE <port>` must allow it): a number for the listener, or nil.'],
+    ['TCP', 'tcpaccept', [p('listener'), p('ms')], 'Wait up to ms milliseconds for another computer to connect: a number for the connection, or nil if none came.'],
+    ['TCP', 'tcpconnect', [p('host'), p('port')], 'Connect out to host (`FW WEB` must allow it): a number for the connection, or nil.'],
+    ['TCP', 'tcprecv', [p('c'), p('ms')], 'What has arrived on connection c within ms milliseconds: `""` once the other side has finished, nil if nothing came.'],
+    ['TCP', 'tcpsend', [p('c'), p('data')], 'Send a string or bytes on connection c.'],
+    ['TCP', 'tcpclose', [p('c')], 'Close connection c.'],
+    ['TCP', 'tcpunlisten', [p('listener')], 'Stop listening: no more connections on that port.'],
+
+    // trust
+    ['Trust', 'verify', [p('data'), p('signature'), p('key')], 'Was data (text or bytes) signed by the private key that goes with key? signature (128 hex digits) and key (64) are hex; anything malformed is false.'],
+    ['Trust', 'packagekey', [], 'The public key packages are checked against, `""` until one is set.'],
+    ['Trust', 'scan', [p('source')], 'What the program `source` (its text) could do, found by reading it without running it: `[abilities, warnings]`, two lists of text. The same as the SCAN command.'],
 
     // system
     ['System', 'sleep', [p('ms')], 'Wait ms milliseconds.'],
@@ -129,7 +149,18 @@ const BUILTIN_LIST = [
     ['System', 'queue', [p('line')], 'Add a program to the queue the `GO` command runs, e.g. `queue("hello.aer a b")`. How many are queued (-1 if full).'],
     ['System', 'sysinfo', [], 'Everything AerOS knows about the computer, as `[group, name, value]` rows.'],
     ['System', 'appmode', [], 'Put away parts of AerOS the program doesn\'t use: `[parts used, KB put away, KB free]`.'],
-    ['System', 'logadd', [p('message')], 'Add an entry to AerOS\'s log (`/sys/logs.db`), with the program\'s name as its source. Written when the program ends.'],
+    ['System', 'disks', [], 'The hard disks there are, as `[number, model, megabytes, what is on it]` rows.'],
+    ['System', 'install', [p('number')], 'Erase disk number (from `disks()`) and install AerOS on it. Only in demo mode, and only after AerOS has asked you itself. true if it worked.'],
+    ['System', 'osbuild', [], 'This AerOS\'s build number, e.g. `"20261204183000"`.'],
+    ['System', 'osversion', [], 'This AerOS\'s version, e.g. `"0.01 ALPHA"`.'],
+    ['System', 'osupdatable', [], 'Can AerOS be updated here (installed on a disk)? false after saying why not.'],
+    ['System', 'osupdate', [p('kernel'), p('signature')], 'Put a new AerOS on the disk, to start next time: only one signed by AerOS\'s makers and newer than the one there, and only after AerOS has asked you itself. true if it is in place.'],
+
+    // logs
+    ['Logs', 'logadd', [p('message')], 'Add an entry to AerOS\'s log (`/sys/logs.db`), with the program\'s name as its source. Written when the program ends, so the program won\'t see it itself.'],
+    ['Logs', 'logclear', [], 'Clear AerOS\'s log, after asking. Leaves one entry saying who cleared it. true if it was cleared. Close the log first if the program opened it.'],
+    ['Logs', 'setlogging', [p('on')], 'Turn AerOS\'s logging on (true) or off (false), after asking. It stays that way after a restart. true if logging is now the way asked for.'],
+    ['Logs', 'islogging', [], 'Is AerOS\'s logging on?'],
     ['System', 'cmd', [p('line')], 'Run a terminal command and give back what it printed, as a list of lines. Only at the prompt: programs can\'t use it.'],
 
     // animation
@@ -162,14 +193,29 @@ const BUILTIN_LIST = [
     ['Games', 'isply', [p('n')], 'Is the sound still playing?'],
 
     // the mouse
-    ['Mouse', 'mouse', [], 'Where the pointer is and which buttons are held: `[x, y, buttons]`. nil if there is no mouse.'],
+    ['Mouse', 'mouse', [], 'Where the pointer is and which buttons are held: `[x, y, buttons]`. nil if there is no mouse. AerOS draws no pointer for a program: draw your own.'],
     ['Mouse', 'mousemove', [], 'How far the mouse moved since last asked: `[dx, dy]`. Good for turning a camera.'],
     ['Mouse', 'mousedown', [p('button')], 'Is that button held? `MOUSE_LEFT`, `MOUSE_RIGHT` or `MOUSE_MIDDLE`.'],
 ];
 
+// The built-ins a program running in the background (the BG command) can't use: they read the
+// keyboard or mouse, draw on the screen, make sound or ask a question, and those belong to the
+// program in front. From aer_front_only() in src/lang/aer_builtins.c: its front_only[] list,
+// and everything in the graphics, sound and video parts of parts[]
+const FRONT_ONLY = new Set([
+    'input', 'inpw', 'key', 'haskey', 'keydown', 'mouse', 'mousemove', 'mousedown',
+    'cls', 'color', 'at', 'progress', 'spinner', 'frame', 'big', 'clip', 'setclip',
+    'logclear', 'setlogging', 'cmd', 'queue', 'install', 'osupdate',
+    // graphics
+    'gopen', 'gclose', 'gw', 'gh', 'gclear', 'rgb', 'pixel', 'rect', 'line', 'text', 'image',
+    'imgsz', 'gbuf', 'gshow',
+    // sound and video
+    'beep', 'play', 'sload', 'splay', 'sstop', 'isply', 'video',
+]);
+
 const BUILTINS = {};
 for (const [group, name, params, doc] of BUILTIN_LIST) {
-    BUILTINS[name] = { group, name, params, doc };
+    BUILTINS[name] = { group, name, params, doc, frontOnly: FRONT_ONLY.has(name) };
 }
 
 // name: description
@@ -204,4 +250,4 @@ function signatureLabel (name, params) {
     return name + '(' + params.map((a) => (a.rest ? '...' + a.name : a.optional ? '[' + a.name + ']' : a.name)).join(', ') + ')';
 }
 
-module.exports = { KEYWORDS, BUILTINS, CONSTANTS, SNIPPETS, signatureLabel };
+module.exports = { KEYWORDS, BUILTINS, CONSTANTS, SNIPPETS, FRONT_ONLY, signatureLabel };

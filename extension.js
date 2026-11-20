@@ -51,11 +51,15 @@ function ownFunctions (document) {
     }));
 }
 
-// a function's description: its signature as code, then what it does
-function describe (name, params, doc, group) {
+// a function's description: its signature as code, then what it does. frontOnly adds that a
+// program in the background can't use it (see FRONT_ONLY in language.js)
+function describe (name, params, doc, group, frontOnly) {
     let text = '```aerlang\n' + signatureLabel(name, params) + '\n```\n';
     if (doc) {
         text += '\n' + doc;
+    }
+    if (frontOnly) {
+        text += '\n\nOnly for the program in front: a program started in the background (`BG`) can\'t use it.';
     }
     if (group) {
         text += '\n\n*' + group + '*';
@@ -122,7 +126,7 @@ const completionProvider = {
         for (const b of Object.values(BUILTINS)) {
             const item = new vscode.CompletionItem({ label: b.name, detail: signatureLabel('', b.params), description: b.group }, Kind.Function);
             item.insertText = parenFollows ? b.name : callSnippet(b.name, b.params);
-            item.documentation = describe(b.name, b.params, b.doc, b.group);
+            item.documentation = describe(b.name, b.params, b.doc, b.group, b.frontOnly);
             item.sortText = ORDER.builtin + b.name;
             if (!parenFollows) {
                 item.command = { command: 'editor.action.triggerParameterHints', title: 'arguments' };
@@ -207,7 +211,7 @@ const hoverProvider = {
         // a built-in only when it is called, as a variable can have the same name (line, text)
         const b = BUILTINS[word];
         if (b && called) {
-            return new vscode.Hover(describe(b.name, b.params, b.doc, b.group), range);
+            return new vscode.Hover(describe(b.name, b.params, b.doc, b.group, b.frontOnly), range);
         }
         const own = ownFunctions(document).find((f) => f.name === word);
         if (own) {
